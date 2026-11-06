@@ -1,85 +1,138 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#073b36">
-  <meta name="description" content="Create a LIFORA UPI payment link or pay an invoice.">
-  <title>LIFORA | Payment portal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  <style>
-    :root{color-scheme:light;--forest:#073b36;--forest-dark:#052d2a;--green:#176b5b;--gold:#d7a747;--cream:#fbf8f0;--paper:#fffefa;--ink:#19332f;--muted:#71817b;--line:#e8e4d9;--warning:#8a5b10;--shadow:0 24px 80px rgba(6,34,30,.18)}
-    *{box-sizing:border-box}body{min-width:320px;min-height:100vh;margin:0;padding:32px 20px;display:grid;place-items:center;color:var(--ink);background:radial-gradient(ellipse at 50% 0%,#14564c 0,var(--forest) 54%,#042522 100%);font-family:'Manrope',ui-sans-serif,system-ui,sans-serif}
-    button,a,input{font:inherit}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #e8bb5c;outline-offset:3px}.portal{width:min(100%,980px);overflow:hidden;border:1px solid rgba(255,255,255,.3);border-radius:28px;background:var(--paper);box-shadow:var(--shadow)}
-    .topbar{min-height:82px;padding:18px 34px;display:flex;align-items:center;justify-content:space-between;gap:20px;background:var(--forest-dark);color:white}.brand{display:flex;align-items:center;gap:12px}.logo{width:52px;height:52px;flex:none;display:block;object-fit:contain}.brand-name{margin:0;font-size:19px;font-weight:700;letter-spacing:.25em}.brand-tagline{margin-top:3px;color:#e3c274;font-size:10px;letter-spacing:.12em}.secure-label{display:flex;align-items:center;gap:8px;color:#e7eee9;font-size:12px}.secure-label svg{width:16px;height:16px;color:#d7bd77}
-    .layout{display:grid;grid-template-columns:1.03fr .97fr}.summary{padding:48px 45px;background:var(--cream)}.eyebrow{display:flex;align-items:center;gap:9px;color:var(--green);font-size:11px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}.eyebrow::before{width:22px;height:1px;content:"";background:var(--gold)}
-    h1{margin:16px 0 8px;color:var(--forest-dark);font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(38px,4.7vw,54px);font-weight:600;line-height:1.02;letter-spacing:-.025em}.intro{max-width:360px;margin:0;color:var(--muted);font-size:14px;line-height:1.7}.amount-card{margin-top:35px;padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.amount-caption{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase}.amount{margin-top:8px;color:var(--forest-dark);font-size:clamp(38px,5vw,52px);font-weight:800;letter-spacing:-.05em}.amount small{margin-left:4px;color:var(--muted);font-size:14px;font-weight:500;letter-spacing:0}
-    .recipient{margin-top:25px}.field-label{display:block;margin-bottom:8px;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.recipient-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.recipient-name{color:var(--forest-dark);font-size:15px;font-weight:700}.upi-id{margin-top:5px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}.copy-button{flex:none;padding:9px 12px;border:1px solid #d5ded6;border-radius:9px;background:transparent;color:var(--green);cursor:pointer;font-size:12px;font-weight:700}.copy-button:hover{background:#edf3ee}.trust-note{margin:26px 0 0;display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:12px;line-height:1.6}.trust-note svg{flex:none;width:17px;height:17px;margin-top:1px;color:var(--green)}
-    .payment{padding:43px 40px}.payment-heading{margin:0;color:var(--forest-dark);font-size:19px;font-weight:800}.payment-subheading{margin:7px 0 22px;color:var(--muted);font-size:13px;line-height:1.6}.method-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;border-radius:12px;background:#f0f1eb}.method-tab{min-height:42px;border:0;border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;font-weight:700}.method-tab[aria-selected="true"]{background:white;color:var(--forest);box-shadow:0 2px 8px rgba(20,40,30,.08)}.method-panel{padding-top:22px}.qr-frame{min-height:236px;display:grid;place-items:center;border:1px solid var(--line);border-radius:16px;background:#fff}#qrcode{min-height:190px;display:grid;place-items:center}#qrcode img,#qrcode canvas{display:block;max-width:100%;height:auto}.qr-fallback{max-width:250px;padding:20px;color:var(--muted);text-align:center;font-size:13px;line-height:1.6}.scan-caption{margin:14px 0 0;color:var(--muted);text-align:center;font-size:12px}
-    .primary-button{width:100%;min-height:52px;margin-top:20px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:12px;background:var(--green);color:white;text-decoration:none;cursor:pointer;font-size:14px;font-weight:800;transition:background .18s,transform .18s}.primary-button:hover{transform:translateY(-1px);background:#0b5147}.primary-button svg{width:18px;height:18px}.alternate-action{width:100%;margin-top:11px;padding:10px;border:0;background:transparent;color:var(--green);cursor:pointer;font-size:12px;font-weight:800}.alternate-action:hover{text-decoration:underline}.status{margin-top:15px;padding:12px 13px;border:1px solid #ecd7aa;border-radius:10px;background:#fff8e9;color:var(--warning);font-size:12px;line-height:1.55}[hidden]{display:none!important}.steps{margin:0;padding:0;list-style:none;counter-reset:step}.steps li{position:relative;min-height:47px;padding:0 0 18px 39px;color:#566a63;font-size:13px;line-height:1.55;counter-increment:step}.steps li::before{position:absolute;top:0;left:0;width:25px;height:25px;display:grid;place-items:center;border:1px solid #d9e3da;border-radius:50%;background:#f6f8f3;color:var(--green);content:counter(step);font-size:11px;font-weight:700}.steps strong{color:var(--forest-dark)}.payment-notice{margin-top:19px;padding:13px;border-radius:10px;background:#f5f6f1;color:var(--muted);font-size:11px;line-height:1.6}.footer{padding:17px 30px;border-top:1px solid var(--line);color:#829089;text-align:center;font-size:10px;letter-spacing:.08em}
-    .builder-wrap{max-width:590px;margin:0 auto;padding:52px 30px 48px}.builder-card{padding:30px;border:1px solid var(--line);border-radius:18px;background:#fff}.builder-card h2{margin:0 0 8px;color:var(--forest-dark);font-size:20px}.builder-card>p{margin:0 0 23px;color:var(--muted);font-size:13px;line-height:1.6}.amount-input{width:100%;min-height:54px;padding:12px 15px;border:1px solid #d5ded6;border-radius:11px;background:#fffefa;color:var(--forest-dark);font-size:20px;font-weight:700}.amount-input[aria-invalid="true"]{border-color:#b34235}.input-help{min-height:20px;margin-top:7px;color:var(--muted);font-size:11px}.input-error{color:#a33228}.share-result{margin-top:18px;padding:16px;border:1px solid #dce8df;border-radius:12px;background:#f5faf5}.share-result p{margin:0 0 10px;color:var(--forest-dark);font-size:13px;font-weight:800}.share-link{display:block;padding:10px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--green);overflow-wrap:anywhere;font-size:12px;line-height:1.5}.builder-warning{margin-top:16px;padding:12px;border-radius:9px;background:#fff8e9;color:#765618;font-size:11px;line-height:1.6}.toast{position:fixed;right:20px;bottom:20px;z-index:3;max-width:min(360px,calc(100vw - 40px));padding:13px 17px;border-radius:11px;background:var(--forest-dark);color:white;box-shadow:var(--shadow);font-size:13px}
-    @media(max-width:700px){body{padding:14px;place-items:start center}.portal{margin:auto 0;border-radius:22px}.topbar{min-height:72px;padding:15px 20px}.logo{width:38px;height:38px}.brand-name{font-size:16px}.secure-label{font-size:0}.secure-label svg{width:19px;height:19px}.layout{grid-template-columns:1fr}.summary{padding:30px 24px 25px}h1{margin-top:12px;font-size:42px}.amount-card{margin-top:23px;padding:18px 0}.amount{font-size:42px}.recipient{margin-top:19px}.trust-note{margin-top:17px}.payment{padding:27px 24px 30px}.payment-subheading{margin-bottom:17px}.footer{padding:15px 20px}.builder-wrap{padding:30px 20px}.builder-card{padding:23px 19px}}
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#063a36">
+<meta name="description" content="LIFORA payment portal"><title>LIFORA | Payment portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--forest:#073b36;--deep:#052d2a;--green:#176b5b;--gold:#d7a747;--cream:#fbf8f0;--paper:#fffefa;--ink:#19332f;--muted:#71817b;--line:#e8e4d9;--red:#a33228;--shadow:0 24px 80px #06221e2e}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#14564c 0,var(--forest) 54%,#042522 100%);font-family:Manrope,system-ui,sans-serif;color:var(--ink);padding:28px 16px;display:grid;place-items:center}button,input,select{font:inherit}button,a,input{outline-offset:3px}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #e8bb5c}.shell{width:min(100%,1040px);overflow:hidden;border:1px solid #ffffff4d;border-radius:25px;background:var(--paper);box-shadow:var(--shadow)}header{padding:17px 30px;display:flex;align-items:center;justify-content:space-between;background:var(--deep);color:white}.brand{display:flex;align-items:center;gap:13px}.logo{width:54px;height:54px;object-fit:contain}.brand-name{margin:0;font-size:19px;letter-spacing:.25em;font-weight:800}.tagline{color:#e3c274;font-size:10px;letter-spacing:.12em;margin-top:3px}.header-right{font-size:11px;letter-spacing:.1em;color:#dce8e1}.main{padding:36px}.eyebrow{color:var(--green);font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.heading{font:600 clamp(35px,5vw,49px)/1.02 'Cormorant Garamond',Georgia,serif;color:var(--deep);margin:12px 0 8px}.sub{font-size:13px;color:var(--muted);line-height:1.7;margin:0 0 23px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px}.card h2{font-size:17px;margin:0 0 7px;color:var(--deep)}.label{display:block;margin:16px 0 7px;font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}.field{width:100%;min-height:46px;padding:11px 13px;border:1px solid #d8ded7;border-radius:9px;background:#fffefa;color:var(--ink);font-size:14px}.field:focus{border-color:var(--green)}.btn{border:0;border-radius:10px;background:var(--green);color:white;padding:13px 17px;font-size:12px;font-weight:800;cursor:pointer}.btn:hover{background:#0b5147}.btn.secondary{background:#eef3ee;color:var(--green);border:1px solid #dce7dd}.btn.danger{background:#fff0ee;color:var(--red);border:1px solid #f0d3cf}.btn.full{width:100%;margin-top:18px}.muted{color:var(--muted)}.small{font-size:11px;line-height:1.6}.notice{padding:12px 14px;background:#f5f6f1;border-radius:9px;color:#63756d;font-size:11px;line-height:1.6;margin-top:15px}.error{color:var(--red);font-size:12px;margin-top:10px}.success{color:var(--green);font-size:12px;margin-top:10px}.hidden{display:none!important}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 18px}.tab{padding:9px 13px;border:1px solid var(--line);border-radius:9px;background:white;color:var(--muted);font-size:11px;font-weight:800;cursor:pointer}.tab.active{background:var(--forest);border-color:var(--forest);color:white}.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.topline h2{margin:0;font-size:19px;color:var(--deep)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}table{border-collapse:collapse;width:100%;min-width:650px;font-size:12px}th,td{text-align:left;padding:12px 13px;border-bottom:1px solid var(--line)}th{background:#f7f7f1;color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase}tr:last-child td{border-bottom:0}.status{display:inline-block;padding:5px 8px;border-radius:30px;background:#fff4dc;color:#865d15;font-size:10px;font-weight:800}.status.paid{background:#e8f4eb;color:#246b42}.status.expired{background:#f1f1ee;color:#747c77}.actions{display:flex;gap:6px;flex-wrap:wrap}.amount{font-size:42px;font-weight:800;letter-spacing:-.05em;color:var(--deep);margin:8px 0 18px}.checkout-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.qr{min-height:235px;border:1px solid var(--line);border-radius:13px;display:grid;place-items:center;background:white;padding:15px}.qr img,.qr canvas{max-width:100%;height:auto}.payment-brand{color:var(--deep);font-weight:800;font-size:15px}.pay-detail{font-size:12px;color:var(--muted);margin-top:7px}.footer{padding:16px;border-top:1px solid var(--line);text-align:center;color:#829089;font-size:9px;letter-spacing:.1em}.toast{position:fixed;bottom:20px;right:20px;background:var(--deep);color:white;padding:12px 16px;border-radius:10px;font-size:12px;box-shadow:var(--shadow);max-width:calc(100vw - 40px)}
+@media(max-width:720px){body{padding:12px;place-items:start center}.shell{border-radius:19px;margin:auto 0}header{padding:14px 18px}.logo{width:42px;height:42px}.brand-name{font-size:16px}.header-right{font-size:9px}.main{padding:24px 18px}.grid,.checkout-grid{grid-template-columns:1fr}.card{padding:19px}.heading{font-size:39px}.amount{font-size:37px}}
+</style>
 </head>
 <body>
-  <main class="portal" id="portal">
-    <header class="topbar">
-      <div class="brand" aria-label="LIFORA — where health blossoms">
-        <img class="logo" src="./lifora_emblem.svg" alt="LIFORA emblem">
-        <div><p class="brand-name">LIFORA</p><div class="brand-tagline">where health blossoms</div></div>
-      </div>
-      <div class="secure-label" aria-label="UPI payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 19 6v5c0 4.5-2.9 7.7-7 10-4.1-2.3-7-5.5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-5"/></svg>UPI PAYMENT</div>
-    </header>
-    <section class="builder-wrap" id="builder" aria-labelledby="builder-title" hidden>
-      <div class="eyebrow">Payment link creator</div><h1 id="builder-title">Create a payment link.</h1>
-      <p class="intro">Enter the amount for this invoice, then copy and share the unique link with your customer.</p>
-      <form class="builder-card" id="amount-form" novalidate>
-        <h2>Invoice amount</h2><p>Choose the amount in Indian rupees. You can enter paise too, for example 1250.50.</p>
-        <label class="field-label" for="amount-input">Amount (INR)</label>
-        <input class="amount-input" id="amount-input" name="amount" type="number" inputmode="decimal" min="0.01" max="10000000" step="0.01" placeholder="Enter amount, e.g. 17741" required aria-describedby="amount-help">
-        <div class="input-help" id="amount-help">Minimum ₹0.01 · Maximum ₹1,00,00,000</div>
-        <button class="primary-button" type="submit">Create shareable payment link</button>
-        <div class="share-result" id="share-result" hidden aria-live="polite"><p>Payment link ready to share</p><a class="share-link" id="share-link" href="#"></a><button class="primary-button" id="copy-link" type="button">Copy payment link</button><a class="alternate-action" id="preview-link" href="#">Preview payment page</a></div>
-        <div class="builder-warning">This link carries the amount in its URL. It is convenient for sharing, but it is not tamper-proof and does not verify payment. For authenticated staff-only link creation or verified payment records, connect a payment provider and secure backend.</div>
-      </form>
-    </section>
-    <div class="layout" id="checkout" hidden>
-      <section class="summary" aria-labelledby="page-title">
-        <div class="eyebrow">LIFORA checkout</div><h1 id="page-title">A healthier you,<br>one step away.</h1>
-        <p class="intro">Review your payment details, then pay using any UPI app. Your app will ask you to approve the payment.</p>
-        <div class="amount-card"><div class="amount-caption">Amount due</div><div class="amount" id="display-amount">— <small>INR</small></div></div>
-        <div class="recipient"><span class="field-label">Paying</span><div class="recipient-row"><div><div class="recipient-name">Lifora payment recipient</div><div class="upi-id" id="upi-id">prakashbharathi0017@oksbi</div></div><button class="copy-button" id="copy-upi" type="button">Copy UPI ID</button></div></div>
-        <p class="trust-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Verify the recipient name and amount in your UPI app before approving. LIFORA will never ask for your UPI PIN or OTP.</span></p>
-      </section>
-      <section class="payment" aria-labelledby="payment-heading">
-        <h2 class="payment-heading" id="payment-heading">Choose how to pay</h2><p class="payment-subheading">Use the UPI app on this device or scan the code from another device.</p>
-        <div class="method-tabs" role="tablist" aria-label="UPI payment method"><button class="method-tab" id="tab-scan" type="button" role="tab" aria-selected="true" aria-controls="panel-scan">Scan QR</button><button class="method-tab" id="tab-app" type="button" role="tab" aria-selected="false" aria-controls="panel-app" tabindex="-1">Open UPI app</button></div>
-        <div class="method-panel" id="panel-scan" role="tabpanel" aria-labelledby="tab-scan"><div class="qr-frame"><div id="qrcode" aria-label="QR code for the UPI payment"><div class="qr-fallback" id="qr-fallback">Preparing your UPI QR code…</div></div></div><p class="scan-caption">Scan with any compatible UPI app</p><button class="primary-button" id="open-app-from-qr" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>Open UPI app</button></div>
-        <div class="method-panel" id="panel-app" role="tabpanel" aria-labelledby="tab-app" hidden><ol class="steps"><li><strong>Tap the button</strong> to open a UPI app installed on this device.</li><li><strong>Check the payment</strong> details shown by your UPI app.</li><li><strong>Approve in your app</strong> using your UPI PIN there only.</li></ol><button class="primary-button" id="open-app" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>Continue to UPI app</button><div class="payment-notice">If no UPI app opens, copy the UPI ID and use the QR code instead. Availability depends on your device and browser.</div></div>
-        <div class="status" id="payment-status" role="status" aria-live="polite" hidden></div><button class="alternate-action" id="show-status" type="button">Already paid? Check payment status</button><div class="payment-notice">Payment status is not verified by this page. Keep your UPI app confirmation and contact LIFORA if you need help.</div>
-      </section>
-    </div>
-    <footer class="footer">LIFORA · SIMPLE, THOUGHTFUL HEALTHCARE</footer>
-  </main>
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <script>
-    (()=>{
-      const upiId="prakashbharathi0017@oksbi",builder=document.getElementById("builder"),checkout=document.getElementById("checkout"),toast=document.getElementById("toast");let toastTimer;
-      function showToast(message){toast.textContent=message;toast.hidden=false;window.clearTimeout(toastTimer);toastTimer=window.setTimeout(()=>{toast.hidden=true},2600)}
-      async function copyText(text){try{await navigator.clipboard.writeText(text);return true}catch{const field=document.createElement("textarea");field.value=text;field.setAttribute("readonly","");field.style.position="fixed";field.style.opacity="0";document.body.appendChild(field);field.select();const copied=document.execCommand("copy");field.remove();return copied}}
-      function validateAmount(value){if(!/^(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?$/.test(value))return null;const amount=Number(value);if(!Number.isFinite(amount)||amount<.01||amount>10000000)return null;return Math.round(amount*100)/100}
-      const params=new URLSearchParams(window.location.search);
-      if(!params.has("amount")){builder.hidden=false;document.getElementById("amount-form").addEventListener("submit",event=>{event.preventDefault();const input=document.getElementById("amount-input"),help=document.getElementById("amount-help"),amount=validateAmount(input.value.trim());if(amount===null){input.setAttribute("aria-invalid","true");help.textContent="Enter a valid amount between ₹0.01 and ₹1,00,00,000, with up to 2 decimal places.";help.classList.add("input-error");input.focus();return}input.removeAttribute("aria-invalid");help.textContent="Minimum ₹0.01 · Maximum ₹1,00,00,000";help.classList.remove("input-error");const shareUrl=new URL(window.location.href);shareUrl.search="";shareUrl.hash="";shareUrl.searchParams.set("amount",amount.toFixed(2));const link=document.getElementById("share-link");link.href=shareUrl.href;link.textContent=shareUrl.href;document.getElementById("preview-link").href=shareUrl.href;document.getElementById("share-result").hidden=false});document.getElementById("copy-link").addEventListener("click",async()=>{const copied=await copyText(document.getElementById("share-link").href);showToast(copied?"Payment link copied. You can now share it.":"Copy the payment link shown above.")});return}
-      const amount=validateAmount(params.get("amount"));if(amount===null){builder.hidden=false;document.querySelector("#builder h1").textContent="Payment link unavailable.";document.querySelector("#builder .intro").textContent="The amount in this link is invalid. Create a new payment link with a valid amount.";document.getElementById("amount-form").hidden=true;return}
-      checkout.hidden=false;const formattedAmount=new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",minimumFractionDigits:amount%1?2:0,maximumFractionDigits:2}).format(amount);document.getElementById("display-amount").innerHTML=`${formattedAmount} <small>INR</small>`;const upiUrl=`upi://pay?pa=${encodeURIComponent(upiId)}&am=${encodeURIComponent(amount.toFixed(2))}&cu=INR&tn=${encodeURIComponent("Lifora Payment")}`,tabs=[document.getElementById("tab-scan"),document.getElementById("tab-app")],panels=[document.getElementById("panel-scan"),document.getElementById("panel-app")],status=document.getElementById("payment-status");
-      function selectTab(selectedIndex){tabs.forEach((tab,index)=>{const selected=index===selectedIndex;tab.setAttribute("aria-selected",String(selected));tab.tabIndex=selected?0:-1;panels[index].hidden=!selected})}tabs.forEach((tab,index)=>{tab.addEventListener("click",()=>selectTab(index));tab.addEventListener("keydown",event=>{if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();const next=(index+(event.key==="ArrowRight"?1:tabs.length-1))%tabs.length;selectTab(next);tabs[next].focus()}})});
-      document.getElementById("copy-upi").addEventListener("click",async()=>{showToast(await copyText(upiId)?"UPI ID copied.":"Copy this UPI ID: "+upiId)});function openUpiApp(){status.hidden=false;status.textContent="Your UPI app should open if one is available. Complete payment in that app, then return here. This page cannot confirm whether a payment succeeded.";window.location.href=upiUrl}document.getElementById("open-app").addEventListener("click",openUpiApp);document.getElementById("open-app-from-qr").addEventListener("click",openUpiApp);document.getElementById("show-status").addEventListener("click",()=>{status.hidden=false;status.textContent="This static checkout cannot verify payment status. Check your UPI app or bank statement for confirmation. If the amount was debited but the payment is unclear, contact LIFORA with your UPI transaction reference. Do not share your UPI PIN or OTP.";status.scrollIntoView({behavior:"smooth",block:"nearest"})});
-      function renderQr(attempt=0){if(window.QRCode){const target=document.getElementById("qrcode");target.replaceChildren();try{new QRCode(target,{text:upiUrl,width:190,height:190,colorDark:"#073b36",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M})}catch{target.innerHTML='<div class="qr-fallback">QR code could not be created. Use the Open UPI app option or copy the UPI ID.</div>'}return}if(attempt<20)window.setTimeout(()=>renderQr(attempt+1),150);else document.getElementById("qr-fallback").textContent="QR code could not load. Use Open UPI app or copy the UPI ID instead."}renderQr()
-    })();
-  </script>
-</body>
-</html>
+<div class="shell">
+<header><div class="brand"><img class="logo" src="./lifora_emblem.svg" alt="LIFORA emblem"><div><p class="brand-name">LIFORA</p><div class="tagline">where health blossoms</div></div></div><div class="header-right">PAYMENT PORTAL</div></header>
+<main class="main">
+<section id="setup" class="hidden"><div class="eyebrow">Configuration required</div><h1 class="heading">Connect your payment workspace.</h1><p class="sub">The portal is deployed, but its secure database is not configured yet. Follow the setup guide in the repository to connect Supabase.</p><div class="notice">Do not paste service-role keys into this page. Only the Supabase project URL and public anon key belong in the browser configuration.</div></section>
+<section id="login" class="hidden"><div class="eyebrow">Private administration</div><h1 class="heading">Payment management.</h1><p class="sub">Sign in to create payment requests and maintain your payment register.</p><div class="card" style="max-width:480px"><label class="label" for="email">Admin email</label><input class="field" id="email" type="email" autocomplete="username" placeholder="you@lifora.in"><label class="label" for="password">Password</label><input class="field" id="password" type="password" autocomplete="current-password" placeholder="Your password"><button class="btn full" id="login-btn">Sign in</button><div id="login-error" class="error"></div></div></section>
+<section id="dashboard" class="hidden"><div class="eyebrow">Private workspace</div><div class="topline"><div><h1 class="heading" style="margin-bottom:3px">Payment register.</h1><div class="small muted">Create requests, share links and record verified payments.</div></div><button class="btn secondary" id="logout">Sign out</button></div>
+<div class="grid">
+<div class="card"><h2>New payment request</h2><p class="small muted">The amount is stored against the payment ID and cannot be changed through the shared link.</p>
+<label class="label" for="customer">Customer name *</label><input class="field" id="customer" maxlength="100" placeholder="Full name">
+<label class="label" for="phone">Phone number</label><input class="field" id="phone" maxlength="20" inputmode="tel" placeholder="Optional">
+<label class="label" for="purpose">Payment purpose *</label><input class="field" id="purpose" maxlength="140" placeholder="Consultation / programme fee">
+<label class="label" for="new-amount">Amount (INR) *</label><input class="field" id="new-amount" type="number" min=".01" max="10000000" step=".01" placeholder="Enter amount">
+<label class="label" for="expiry">Link validity</label><select class="field" id="expiry"><option value="7">7 days</option><option value="1">24 hours</option><option value="3">3 days</option><option value="30">30 days</option></select>
+<button class="btn full" id="create-btn">Create payment link</button><div id="create-msg" class="small"></div><div id="created-link" class="notice hidden"></div></div>
+<div class="card"><h2>Payment overview</h2><p class="small muted">Current records in your LIFORA payment register.</p><div class="grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><div class="notice"><div class="small muted">Total requests</div><div id="count-total" style="font-size:27px;font-weight:800;color:var(--deep)">—</div></div><div class="notice"><div class="small muted">Awaiting payment</div><div id="count-pending" style="font-size:27px;font-weight:800;color:var(--deep)">—</div></div><div class="notice"><div class="small muted">Marked paid</div><div id="count-paid" style="font-size:27px;font-weight:800;color:var(--deep)">—</div></div><div class="notice"><div class="small muted">Recorded paid value</div><div id="sum-paid" style="font-size:20px;font-weight:800;color:var(--deep)">—</div></div></div><div class="notice">“Paid” is an administrative record, not an automatic bank confirmation. Verify the credit in your bank/UPI app before marking a request paid.</div></div>
+</div>
+<div class="topline" style="margin-top:30px"><h2>All payment requests</h2><button class="btn secondary" id="refresh">Refresh</button></div><div class="tabs"><button class="tab active" data-filter="all">All</button><button class="tab" data-filter="pending">Pending</button><button class="tab" data-filter="paid">Paid</button><button class="tab" data-filter="expired">Expired</button></div>
+<div class="table-wrap"><table><thead><tr><th>Customer / purpose</th><th>Amount</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead><tbody id="records"><tr><td colspan="5" class="muted">Loading records…</td></tr></tbody></table></div><div id="dashboard-msg" class="small muted" style="margin-top:12px"></div>
+</section>
+<section id="checkout" class="hidden"><div class="eyebrow">LIFORA checkout</div><h1 class="heading">A healthier you,<br>one step away.</h1><p class="sub">Review your payment details and pay using any compatible UPI app.</p><div class="checkout-grid"><div class="card"><div class="label">Amount due</div><div class="amount" id="pay-amount">—</div><div class="label">Payment for</div><div class="payment-brand" id="pay-purpose">—</div><div class="pay-detail" id="pay-customer"></div><div class="label">Pay to</div><div class="payment-brand">LIFORA</div><div class="pay-detail" id="upi-display">prakashbharathi0017@oksbi</div><button class="btn secondary" id="copy-upi" style="margin-top:15px">Copy UPI ID</button><div class="notice">Check the recipient and amount in your UPI app before approving. Never share your UPI PIN or OTP.</div></div><div class="card"><h2>Scan to pay</h2><p class="small muted">Scan this QR code with any compatible UPI app.</p><div class="qr" id="qrcode"></div><a class="btn full" id="open-upi" href="#">Open UPI app</a><div id="pay-status" class="notice">After paying, contact LIFORA with your UPI transaction reference if you need a payment confirmation.</div></div></div></section>
+<section id="not-found" class="hidden"><div class="eyebrow">Payment link unavailable</div><h1 class="heading">We couldn't find this request.</h1><p class="sub">The link may be invalid, expired or no longer available. Please contact LIFORA for a fresh payment request.</p></section>
+</main><footer class="footer">LIFORA · SIMPLE, THOUGHTFUL HEALTHCARE</footer></div><div id="toast" class="toast hidden"></div>
+<script>
+(()=>{
+const CONFIG={url:"",anonKey:""};
+const UPI_ID="prakashbharathi0017@oksbi";
+const $=id=>document.getElementById(id);
+const show=id=>$(id).classList.remove("hidden");
+const hide=id=>$(id).classList.add("hidden");
+const money=n=>new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:2}).format(Number(n));
+let db=null,records=[],filter="all";
+function toast(s){$("toast").textContent=s;show("toast");setTimeout(()=>hide("toast"),2800)}
+async function copy(s){try{await navigator.clipboard.writeText(s);toast("Copied to clipboard")}catch{toast("Copy unavailable. Please select and copy the text.")}}
+function section(id){["setup","login","dashboard","checkout","not-found"].forEach(hide);show(id)}
+function configReady(){return CONFIG.url.startsWith("https://")&&CONFIG.anonKey.length>20}
+async function init(){
+ if(!configReady()){section("setup");return}
+ if(!window.supabase){section("setup");$("setup").querySelector(".sub").textContent="The Supabase client library could not load. Check your connection and reload.";return}
+ db=window.supabase.createClient(CONFIG.url,CONFIG.anonKey);
+ const id=new URLSearchParams(location.search).get("pay");
+ if(id){await loadCheckout(id);return}
+ const {data:{session}}=await db.auth.getSession();
+ if(session){await dashboard()}else{section("login")}
+}
+$("login-btn").addEventListener("click",async()=>{
+ $("login-error").textContent="";
+ const {error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+ if(error){$("login-error").textContent=error.message;return}
+ await dashboard();
+});
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")$("login-btn").click()});
+$("logout").addEventListener("click",async()=>{await db.auth.signOut();section("login")});
+$("refresh").addEventListener("click",loadRecords);
+$("create-btn").addEventListener("click",async()=>{
+ const name=$("customer").value.trim(),phone=$("phone").value.trim(),purpose=$("purpose").value.trim(),amount=Number($("new-amount").value),days=Number($("expiry").value);
+ $("create-msg").textContent="";
+ if(!name||!purpose||!Number.isFinite(amount)||amount<.01||amount>10000000){$("create-msg").className="error";$("create-msg").textContent="Enter a customer name, purpose and a valid amount.";return}
+ const expires=new Date(Date.now()+days*86400000).toISOString();
+ $("create-btn").disabled=true;
+ const {data,error}=await db.rpc("create_payment_request",{p_customer_name:name,p_customer_phone:phone||null,purpose_text:purpose,p_amount:amount,p_expires_at:expires});
+ $("create-btn").disabled=false;
+ if(error){$("create-msg").className="error";$("create-msg").textContent=error.message;return}
+ const url=new URL(location.href);url.search="";url.hash="";url.searchParams.set("pay",data);
+ const link=url.toString();$("created-link").innerHTML="";
+ const label=document.createElement("strong");label.textContent="Payment link created";
+ const a=document.createElement("a");a.href=link;a.textContent=link;a.target="_blank";a.rel="noopener";a.style.cssText="display:block;overflow-wrap:anywhere;margin:8px 0;color:var(--green);font-size:12px";
+ const btn=document.createElement("button");btn.className="btn secondary";btn.textContent="Copy link";btn.addEventListener("click",()=>copy(link));
+ $("created-link").append(label,a,btn);show("created-link");$("create-msg").className="success";$("create-msg").textContent="Request saved. Share this link with the customer.";
+ $("customer").value="";$("phone").value="";$("purpose").value="";$("new-amount").value="";await loadRecords();
+});
+async function dashboard(){
+ section("dashboard");await loadRecords();
+}
+async function loadRecords(){
+ $("records").innerHTML='<tr><td colspan="5">Loading…</td></tr>';
+ const {data,error}=await db.from("payment_requests").select("*").order("created_at",{ascending:false}).limit(250);
+ if(error){$("dashboard-msg").textContent="Could not load records: "+error.message;return}
+ records=data||[];const now=Date.now();
+ records=records.map(r=>({...r,status:r.status==="pending"&&r.expires_at&&new Date(r.expires_at).getTime()<now?"expired":r.status}));
+ $("count-total").textContent=records.length;$("count-pending").textContent=records.filter(r=>r.status==="pending").length;$("count-paid").textContent=records.filter(r=>r.status==="paid").length;$("sum-paid").textContent=money(records.filter(r=>r.status==="paid").reduce((s,r)=>s+Number(r.amount),0));
+ renderRecords();
+}
+function renderRecords(){
+ const rows=records.filter(r=>filter==="all"||r.status===filter);
+ $("records").innerHTML="";
+ if(!rows.length){$("records").innerHTML='<tr><td colspan="5" class="muted">No matching payment requests.</td></tr>';return}
+ rows.forEach(r=>{
+ const tr=document.createElement("tr"),c=document.createElement("td"),amt=document.createElement("td"),date=document.createElement("td"),st=document.createElement("td"),act=document.createElement("td");
+ const n=document.createElement("strong");n.textContent=r.customer_name;c.append(n);const p=document.createElement("div");p.className="small muted";p.textContent=r.purpose;c.append(p);
+ amt.textContent=money(r.amount);date.textContent=new Date(r.created_at).toLocaleDateString("en-IN");
+ const badge=document.createElement("span");badge.className="status "+r.status;badge.textContent=r.status.toUpperCase();st.append(badge);act.className="actions";
+ const link=new URL(location.href);link.search="";link.searchParams.set("pay",r.id);
+ const share=document.createElement("button");share.className="btn secondary";share.textContent="Copy link";share.addEventListener("click",()=>copy(link.toString()));act.append(share);
+ if(r.status==="pending"){
+ const paid=document.createElement("button");paid.className="btn";paid.textContent="Mark paid";paid.addEventListener("click",()=>markPaid(r.id));act.append(paid);
+ }
+ tr.append(c,amt,date,st,act);$("records").append(tr);
+ });
+}
+document.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.filter;document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x===b));renderRecords()}));
+async function markPaid(id){
+ const ref=prompt("Enter the UPI/bank transaction reference after verifying the credit. Do not enter any PIN or OTP.");
+ if(ref===null)return;
+ const {error}=await db.rpc("mark_payment_paid",{p_payment_id:id,p_transaction_ref:ref.trim()||null});
+ if(error){toast("Could not update status: "+error.message);return}
+ toast("Payment marked as paid");await loadRecords();
+}
+async function loadCheckout(id){
+ const {data,error}=await db.rpc("get_payment_request",{p_payment_id:id});
+ const r=Array.isArray(data)?data[0]:data;
+ if(error||!r){section("not-found");return}
+ if(r.status==="expired"){section("not-found");return}
+ section("checkout");$("pay-amount").textContent=money(r.amount);$("pay-purpose").textContent=r.purpose;$("pay-customer").textContent=r.customer_name;
+ if(r.status==="paid"){$("pay-status").textContent="LIFORA has marked this request as paid.";return}
+ const uri="upi://pay?pa="+encodeURIComponent(UPI_ID)+"&pn="+encodeURIComponent("LIFORA")+"&am="+encodeURIComponent(Number(r.amount).toFixed(2))+"&cu=INR&tn="+encodeURIComponent("LIFORA "+r.id.slice(0,8));
+ $("open-upi").href=uri;
+ try{new QRCode($("qrcode"),{text:uri,width:190,height:190,colorDark:"#073b36",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M})}catch{$("qrcode").textContent="QR code unavailable. Use Open UPI app."}
+ $("copy-upi").addEventListener("click",()=>copy(UPI_ID));
+}
+init();
+})();
+</script>
+</body></html>
