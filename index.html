@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#073b36">
-  <meta name="description" content="Pay your LIFORA healthcare invoice using UPI.">
-  <title>Payment checkout | LIFORA</title>
+  <meta name="description" content="Create a LIFORA UPI payment link or pay an invoice.">
+  <title>LIFORA | Payment portal</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <style>
     :root {
@@ -19,27 +19,19 @@
       --ink: #19332f;
       --muted: #71817b;
       --line: #e8e4d9;
-      --success: #176b48;
       --warning: #8a5b10;
       --shadow: 0 24px 80px rgba(6, 34, 30, .18);
     }
-
     * { box-sizing: border-box; }
     body {
-      min-width: 320px;
-      min-height: 100vh;
-      margin: 0;
-      padding: 32px 20px;
-      display: grid;
-      place-items: center;
-      color: var(--ink);
+      min-width: 320px; min-height: 100vh; margin: 0; padding: 32px 20px;
+      display: grid; place-items: center; color: var(--ink);
       background: radial-gradient(ellipse at 50% 0%, #14564c 0, var(--forest) 54%, #042522 100%);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-
-    button, a { font: inherit; }
-    button:focus-visible, a:focus-visible { outline: 3px solid #e8bb5c; outline-offset: 3px; }
-    .checkout { width: min(100%, 980px); overflow: hidden; border: 1px solid rgba(255,255,255,.3); border-radius: 28px; background: var(--paper); box-shadow: var(--shadow); }
+    button, a, input { font: inherit; }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #e8bb5c; outline-offset: 3px; }
+    .portal { width: min(100%, 980px); overflow: hidden; border: 1px solid rgba(255,255,255,.3); border-radius: 28px; background: var(--paper); box-shadow: var(--shadow); }
     .topbar { min-height: 82px; padding: 18px 34px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--forest-dark); color: white; }
     .brand { display: flex; align-items: center; gap: 12px; }
     .logo { width: 43px; height: 43px; flex: none; }
@@ -47,7 +39,6 @@
     .brand-tagline { margin-top: 3px; color: #e3c274; font-size: 10px; letter-spacing: .12em; }
     .secure-label { display: flex; align-items: center; gap: 8px; color: #e7eee9; font-size: 12px; }
     .secure-label svg { width: 16px; height: 16px; color: #d7bd77; }
-
     .layout { display: grid; grid-template-columns: 1.03fr .97fr; }
     .summary { padding: 48px 45px; background: var(--cream); }
     .eyebrow { display: flex; align-items: center; gap: 9px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .15em; text-transform: uppercase; }
@@ -67,7 +58,6 @@
     .copy-button:hover { background: #edf3ee; }
     .trust-note { margin: 26px 0 0; display: flex; align-items: flex-start; gap: 10px; color: var(--muted); font-size: 12px; line-height: 1.6; }
     .trust-note svg { flex: none; width: 17px; height: 17px; margin-top: 1px; color: var(--green); }
-
     .payment { padding: 43px 40px; }
     .payment-heading { margin: 0; color: var(--forest-dark); font-size: 19px; font-weight: 700; }
     .payment-subheading { margin: 7px 0 22px; color: var(--muted); font-size: 13px; line-height: 1.6; }
@@ -86,18 +76,29 @@
     .alternate-action { width: 100%; margin-top: 11px; padding: 10px; border: 0; background: transparent; color: var(--green); cursor: pointer; font-size: 12px; font-weight: 700; }
     .alternate-action:hover { text-decoration: underline; }
     .status { margin-top: 15px; padding: 12px 13px; border: 1px solid #ecd7aa; border-radius: 10px; background: #fff8e9; color: var(--warning); font-size: 12px; line-height: 1.55; }
-    .status[hidden], [hidden] { display: none !important; }
+    [hidden] { display: none !important; }
     .steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
     .steps li { position: relative; min-height: 47px; padding: 0 0 18px 39px; color: #566a63; font-size: 13px; line-height: 1.55; counter-increment: step; }
     .steps li::before { position: absolute; top: 0; left: 0; width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid #d9e3da; border-radius: 50%; background: #f6f8f3; color: var(--green); content: counter(step); font-size: 11px; font-weight: 700; }
     .steps strong { color: var(--forest-dark); }
     .payment-notice { margin-top: 19px; padding: 13px; border-radius: 10px; background: #f5f6f1; color: var(--muted); font-size: 11px; line-height: 1.6; }
     .footer { padding: 17px 30px; border-top: 1px solid var(--line); color: #829089; text-align: center; font-size: 10px; letter-spacing: .08em; }
+    .builder-wrap { max-width: 590px; margin: 0 auto; padding: 52px 30px 48px; }
+    .builder-card { padding: 30px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+    .builder-card h2 { margin: 0 0 8px; color: var(--forest-dark); font-size: 20px; }
+    .builder-card > p { margin: 0 0 23px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .amount-input { width: 100%; min-height: 54px; padding: 12px 15px; border: 1px solid #d5ded6; border-radius: 11px; background: #fffefa; color: var(--forest-dark); font-size: 20px; font-weight: 650; }
+    .amount-input[aria-invalid="true"] { border-color: #b34235; }
+    .input-help { min-height: 20px; margin-top: 7px; color: var(--muted); font-size: 11px; }
+    .input-error { color: #a33228; }
+    .share-result { margin-top: 18px; padding: 16px; border: 1px solid #dce8df; border-radius: 12px; background: #f5faf5; }
+    .share-result p { margin: 0 0 10px; color: var(--forest-dark); font-size: 13px; font-weight: 700; }
+    .share-link { display: block; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--green); overflow-wrap: anywhere; font-size: 12px; line-height: 1.5; }
+    .builder-warning { margin-top: 16px; padding: 12px; border-radius: 9px; background: #fff8e9; color: #765618; font-size: 11px; line-height: 1.6; }
     .toast { position: fixed; right: 20px; bottom: 20px; z-index: 3; max-width: min(360px, calc(100vw - 40px)); padding: 13px 17px; border-radius: 11px; background: var(--forest-dark); color: white; box-shadow: var(--shadow); font-size: 13px; }
-
     @media (max-width: 700px) {
       body { padding: 14px; place-items: start center; }
-      .checkout { margin: auto 0; border-radius: 22px; }
+      .portal { margin: auto 0; border-radius: 22px; }
       .topbar { min-height: 72px; padding: 15px 20px; }
       .logo { width: 38px; height: 38px; }
       .brand-name { font-size: 16px; }
@@ -113,12 +114,14 @@
       .payment { padding: 27px 24px 30px; }
       .payment-subheading { margin-bottom: 17px; }
       .footer { padding: 15px 20px; }
+      .builder-wrap { padding: 30px 20px; }
+      .builder-card { padding: 23px 19px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
   </style>
 </head>
 <body>
-  <main class="checkout" aria-labelledby="page-title">
+  <main class="portal" id="portal">
     <header class="topbar">
       <div class="brand" aria-label="LIFORA — where health blossoms">
         <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
@@ -132,62 +135,67 @@
       <div class="secure-label" aria-label="UPI payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 19 6v5c0 4.5-2.9 7.7-7 10-4.1-2.3-7-5.5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg>UPI PAYMENT</div>
     </header>
 
-    <div class="layout">
+    <section class="builder-wrap" id="builder" aria-labelledby="builder-title" hidden>
+      <div class="eyebrow">Payment link creator</div>
+      <h1 id="builder-title">Create a payment link.</h1>
+      <p class="intro">Enter the amount for this invoice, then copy and share the unique link with your customer.</p>
+      <form class="builder-card" id="amount-form" novalidate>
+        <h2>Invoice amount</h2>
+        <p>Choose the amount in Indian rupees. You can enter paise too, for example 1250.50.</p>
+        <label class="field-label" for="amount-input">Amount (INR)</label>
+        <input class="amount-input" id="amount-input" name="amount" type="number" inputmode="decimal" min="0.01" max="10000000" step="0.01" placeholder="Enter amount, e.g. 17741" required aria-describedby="amount-help">
+        <div class="input-help" id="amount-help">Minimum ₹0.01 · Maximum ₹1,00,00,000</div>
+        <button class="primary-button" type="submit">Create shareable payment link</button>
+        <div class="share-result" id="share-result" hidden aria-live="polite">
+          <p>Payment link ready to share</p>
+          <a class="share-link" id="share-link" href="#"></a>
+          <button class="primary-button" id="copy-link" type="button">Copy payment link</button>
+          <a class="alternate-action" id="preview-link" href="#">Preview payment page</a>
+        </div>
+        <div class="builder-warning">This link carries the amount in its URL. It is convenient for sharing, but it is not tamper-proof and does not verify payment. For authenticated staff-only link creation or verified payment records, connect a payment provider and secure backend.</div>
+      </form>
+    </section>
+
+    <div class="layout" id="checkout" hidden>
       <section class="summary" aria-labelledby="page-title">
         <div class="eyebrow">LIFORA checkout</div>
         <h1 id="page-title">A healthier you,<br>one step away.</h1>
         <p class="intro">Review your payment details, then pay using any UPI app. Your app will ask you to approve the payment.</p>
-
         <div class="amount-card">
           <div class="amount-caption">Amount due</div>
-          <div class="amount">₹17,741 <small>INR</small></div>
+          <div class="amount" id="display-amount">— <small>INR</small></div>
         </div>
-
         <div class="recipient">
           <span class="field-label">Paying</span>
           <div class="recipient-row">
-            <div>
-              <div class="recipient-name">Lifora payment recipient</div>
-              <div class="upi-id" id="upi-id">prakashbharathi0017@oksbi</div>
-            </div>
+            <div><div class="recipient-name">Lifora payment recipient</div><div class="upi-id" id="upi-id">prakashbharathi0017@oksbi</div></div>
             <button class="copy-button" id="copy-upi" type="button">Copy UPI ID</button>
           </div>
         </div>
-
         <p class="trust-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Verify the recipient name and amount in your UPI app before approving. LIFORA will never ask for your UPI PIN or OTP.</span></p>
       </section>
-
       <section class="payment" aria-labelledby="payment-heading">
         <h2 class="payment-heading" id="payment-heading">Choose how to pay</h2>
         <p class="payment-subheading">Use the UPI app on this device or scan the code from another device.</p>
-
         <div class="method-tabs" role="tablist" aria-label="UPI payment method">
           <button class="method-tab" id="tab-scan" type="button" role="tab" aria-selected="true" aria-controls="panel-scan">Scan QR</button>
           <button class="method-tab" id="tab-app" type="button" role="tab" aria-selected="false" aria-controls="panel-app" tabindex="-1">Open UPI app</button>
         </div>
-
         <div class="method-panel" id="panel-scan" role="tabpanel" aria-labelledby="tab-scan">
           <div class="qr-frame"><div id="qrcode" aria-label="QR code for the UPI payment"><div class="qr-fallback" id="qr-fallback">Preparing your UPI QR code…</div></div></div>
           <p class="scan-caption">Scan with any compatible UPI app</p>
           <button class="primary-button" id="open-app-from-qr" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>Open UPI app</button>
         </div>
-
         <div class="method-panel" id="panel-app" role="tabpanel" aria-labelledby="tab-app" hidden>
-          <ol class="steps">
-            <li><strong>Tap the button</strong> to open a UPI app installed on this device.</li>
-            <li><strong>Check the payment</strong> details shown by your UPI app.</li>
-            <li><strong>Approve in your app</strong> using your UPI PIN there only.</li>
-          </ol>
-          <button class="primary-button" id="open-app" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>Continue to UPI app · ₹17,741</button>
+          <ol class="steps"><li><strong>Tap the button</strong> to open a UPI app installed on this device.</li><li><strong>Check the payment</strong> details shown by your UPI app.</li><li><strong>Approve in your app</strong> using your UPI PIN there only.</li></ol>
+          <button class="primary-button" id="open-app" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>Continue to UPI app</button>
           <div class="payment-notice">If no UPI app opens, copy the UPI ID and use the QR code instead. Availability depends on your device and browser.</div>
         </div>
-
         <div class="status" id="payment-status" role="status" aria-live="polite" hidden></div>
         <button class="alternate-action" id="show-status" type="button">Already paid? Check payment status</button>
         <div class="payment-notice">Payment status is not verified by this page. Keep your UPI app confirmation and contact LIFORA if you need help.</div>
       </section>
     </div>
-
     <footer class="footer">LIFORA · SIMPLE, THOUGHTFUL HEALTHCARE</footer>
   </main>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
@@ -195,10 +203,8 @@
   <script>
     (() => {
       const upiId = "prakashbharathi0017@oksbi";
-      const upiUrl = "upi://pay?pa=prakashbharathi0017%40oksbi&am=17741&cu=INR&tn=Lifora%20Payment";
-      const tabs = [document.getElementById("tab-scan"), document.getElementById("tab-app")];
-      const panels = [document.getElementById("panel-scan"), document.getElementById("panel-app")];
-      const status = document.getElementById("payment-status");
+      const builder = document.getElementById("builder");
+      const checkout = document.getElementById("checkout");
       const toast = document.getElementById("toast");
       let toastTimer;
 
@@ -209,6 +215,83 @@
         toastTimer = window.setTimeout(() => { toast.hidden = true; }, 2600);
       }
 
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch {
+          const field = document.createElement("textarea");
+          field.value = text;
+          field.setAttribute("readonly", "");
+          field.style.position = "fixed";
+          field.style.opacity = "0";
+          document.body.appendChild(field);
+          field.select();
+          const copied = document.execCommand("copy");
+          field.remove();
+          return copied;
+        }
+      }
+
+      function validateAmount(value) {
+        if (!/^(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?$/.test(value)) return null;
+        const amount = Number(value);
+        if (!Number.isFinite(amount) || amount < 0.01 || amount > 10000000) return null;
+        return Math.round(amount * 100) / 100;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      if (!params.has("amount")) {
+        builder.hidden = false;
+        document.getElementById("amount-form").addEventListener("submit", (event) => {
+          event.preventDefault();
+          const input = document.getElementById("amount-input");
+          const help = document.getElementById("amount-help");
+          const amount = validateAmount(input.value.trim());
+          if (amount === null) {
+            input.setAttribute("aria-invalid", "true");
+            help.textContent = "Enter a valid amount between ₹0.01 and ₹1,00,00,000, with up to 2 decimal places.";
+            help.classList.add("input-error");
+            input.focus();
+            return;
+          }
+          input.removeAttribute("aria-invalid");
+          help.textContent = "Minimum ₹0.01 · Maximum ₹1,00,00,000";
+          help.classList.remove("input-error");
+          const shareUrl = new URL(window.location.href);
+          shareUrl.search = "";
+          shareUrl.hash = "";
+          shareUrl.searchParams.set("amount", amount.toFixed(2));
+          const link = document.getElementById("share-link");
+          link.href = shareUrl.href;
+          link.textContent = shareUrl.href;
+          document.getElementById("preview-link").href = shareUrl.href;
+          document.getElementById("share-result").hidden = false;
+        });
+        document.getElementById("copy-link").addEventListener("click", async () => {
+          const copied = await copyText(document.getElementById("share-link").href);
+          showToast(copied ? "Payment link copied. You can now share it." : "Copy the payment link shown above.");
+        });
+        return;
+      }
+
+      const amount = validateAmount(params.get("amount"));
+      if (amount === null) {
+        builder.hidden = false;
+        document.querySelector("#builder h1").textContent = "Payment link unavailable.";
+        document.querySelector("#builder .intro").textContent = "The amount in this link is invalid. Create a new payment link with a valid amount.";
+        document.getElementById("amount-form").hidden = true;
+        return;
+      }
+
+      checkout.hidden = false;
+      const formattedAmount = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: amount % 1 ? 2 : 0, maximumFractionDigits: 2 }).format(amount);
+      document.getElementById("display-amount").innerHTML = `${formattedAmount} <small>INR</small>`;
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&am=${encodeURIComponent(amount.toFixed(2))}&cu=INR&tn=${encodeURIComponent("Lifora Payment")}`;
+      const tabs = [document.getElementById("tab-scan"), document.getElementById("tab-app")];
+      const panels = [document.getElementById("panel-scan"), document.getElementById("panel-app")];
+      const status = document.getElementById("payment-status");
+
       function selectTab(selectedIndex) {
         tabs.forEach((tab, index) => {
           const selected = index === selectedIndex;
@@ -217,7 +300,6 @@
           panels[index].hidden = !selected;
         });
       }
-
       tabs.forEach((tab, index) => {
         tab.addEventListener("click", () => selectTab(index));
         tab.addEventListener("keydown", (event) => {
@@ -231,23 +313,8 @@
       });
 
       document.getElementById("copy-upi").addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(upiId);
-          showToast("UPI ID copied.");
-        } catch {
-          const field = document.createElement("textarea");
-          field.value = upiId;
-          field.setAttribute("readonly", "");
-          field.style.position = "fixed";
-          field.style.opacity = "0";
-          document.body.appendChild(field);
-          field.select();
-          const copied = document.execCommand("copy");
-          field.remove();
-          showToast(copied ? "UPI ID copied." : "Copy this UPI ID: " + upiId);
-        }
+        showToast(await copyText(upiId) ? "UPI ID copied." : "Copy this UPI ID: " + upiId);
       });
-
       function openUpiApp() {
         status.hidden = false;
         status.textContent = "Your UPI app should open if one is available. Complete payment in that app, then return here. This page cannot confirm whether a payment succeeded.";
@@ -266,24 +333,14 @@
           const target = document.getElementById("qrcode");
           target.replaceChildren();
           try {
-            new QRCode(target, {
-              text: upiUrl,
-              width: 190,
-              height: 190,
-              colorDark: "#073b36",
-              colorLight: "#ffffff",
-              correctLevel: QRCode.CorrectLevel.M
-            });
+            new QRCode(target, { text: upiUrl, width: 190, height: 190, colorDark: "#073b36", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
           } catch {
             target.innerHTML = '<div class="qr-fallback">QR code could not be created. Use the Open UPI app option or copy the UPI ID.</div>';
           }
           return;
         }
-        if (attempt < 20) {
-          window.setTimeout(() => renderQr(attempt + 1), 150);
-        } else {
-          document.getElementById("qr-fallback").textContent = "QR code could not load. Use Open UPI app or copy the UPI ID instead.";
-        }
+        if (attempt < 20) window.setTimeout(() => renderQr(attempt + 1), 150);
+        else document.getElementById("qr-fallback").textContent = "QR code could not load. Use Open UPI app or copy the UPI ID instead.";
       }
       renderQr();
     })();
