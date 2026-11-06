@@ -2,239 +2,291 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#062d2b">
-  <title>LIFORA | Payment</title>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#073b36">
+  <meta name="description" content="Pay your LIFORA healthcare invoice using UPI.">
+  <title>Payment checkout | LIFORA</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <style>
     :root {
-      --deep: #062d2b;
-      --gold: #dca83d;
-      --cream: #fff4e4;
-      --text: #17302d;
+      color-scheme: light;
+      --forest: #073b36;
+      --forest-dark: #052d2a;
+      --green: #176b5b;
+      --gold: #d7a747;
+      --cream: #fbf8f0;
+      --paper: #fffefa;
+      --ink: #19332f;
+      --muted: #71817b;
+      --line: #e8e4d9;
+      --success: #176b48;
+      --warning: #8a5b10;
+      --shadow: 0 24px 80px rgba(6, 34, 30, .18);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
-      margin: 0;
+      min-width: 320px;
       min-height: 100vh;
-      padding: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: Inter, Arial, sans-serif;
-      background: linear-gradient(145deg, #042422, #0b403b);
-      color: var(--text);
-    }
-
-    .payment-card {
-      width: 100%;
-      max-width: 430px;
-      overflow: hidden;
-      background: var(--cream);
-      border-radius: 24px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      text-align: center;
-    }
-
-    .header {
-      padding: 35px 24px 28px;
-      background: var(--deep);
-      color: var(--cream);
-    }
-
-    .logo {
-      width: 75px;
-      height: 75px;
-      margin: 0 auto 12px;
-    }
-
-    .brand {
       margin: 0;
-      font-size: 30px;
-      letter-spacing: 7px;
-      font-weight: 600;
+      padding: 32px 20px;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background: radial-gradient(ellipse at 50% 0%, #14564c 0, var(--forest) 54%, #042522 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    .tagline {
-      margin-top: 9px;
-      color: var(--gold);
-      font-size: 13px;
-      letter-spacing: 2px;
-      text-transform: lowercase;
-    }
+    button, a { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #e8bb5c; outline-offset: 3px; }
+    .checkout { width: min(100%, 980px); overflow: hidden; border: 1px solid rgba(255,255,255,.3); border-radius: 28px; background: var(--paper); box-shadow: var(--shadow); }
+    .topbar { min-height: 82px; padding: 18px 34px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--forest-dark); color: white; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 43px; height: 43px; flex: none; }
+    .brand-name { margin: 0; font-size: 19px; font-weight: 650; letter-spacing: .25em; }
+    .brand-tagline { margin-top: 3px; color: #e3c274; font-size: 10px; letter-spacing: .12em; }
+    .secure-label { display: flex; align-items: center; gap: 8px; color: #e7eee9; font-size: 12px; }
+    .secure-label svg { width: 16px; height: 16px; color: #d7bd77; }
 
-    .content {
-      padding: 30px 25px;
-    }
+    .layout { display: grid; grid-template-columns: 1.03fr .97fr; }
+    .summary { padding: 48px 45px; background: var(--cream); }
+    .eyebrow { display: flex; align-items: center; gap: 9px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .15em; text-transform: uppercase; }
+    .eyebrow::before { width: 22px; height: 1px; content: ""; background: var(--gold); }
+    h1 { margin: 16px 0 8px; color: var(--forest-dark); font-family: Georgia, "Times New Roman", serif; font-size: clamp(32px, 4vw, 45px); font-weight: 500; letter-spacing: -.035em; }
+    .intro { max-width: 360px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .amount-card { margin-top: 35px; padding: 24px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .amount-caption { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .amount { margin-top: 8px; color: var(--forest-dark); font-size: clamp(38px, 5vw, 52px); font-weight: 700; letter-spacing: -.05em; }
+    .amount small { margin-left: 4px; color: var(--muted); font-size: 14px; font-weight: 500; letter-spacing: 0; }
+    .recipient { margin-top: 25px; }
+    .field-label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .recipient-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .recipient-name { color: var(--forest-dark); font-size: 15px; font-weight: 650; }
+    .upi-id { margin-top: 5px; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+    .copy-button { flex: none; padding: 9px 12px; border: 1px solid #d5ded6; border-radius: 9px; background: transparent; color: var(--green); cursor: pointer; font-size: 12px; font-weight: 700; }
+    .copy-button:hover { background: #edf3ee; }
+    .trust-note { margin: 26px 0 0; display: flex; align-items: flex-start; gap: 10px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .trust-note svg { flex: none; width: 17px; height: 17px; margin-top: 1px; color: var(--green); }
 
-    .kicker {
-      color: #75817c;
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
+    .payment { padding: 43px 40px; }
+    .payment-heading { margin: 0; color: var(--forest-dark); font-size: 19px; font-weight: 700; }
+    .payment-subheading { margin: 7px 0 22px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .method-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 5px; border-radius: 12px; background: #f0f1eb; }
+    .method-tab { min-height: 42px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 650; }
+    .method-tab[aria-selected="true"] { background: white; color: var(--forest); box-shadow: 0 2px 8px rgba(20,40,30,.08); }
+    .method-panel { padding-top: 22px; }
+    .qr-frame { min-height: 236px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+    #qrcode { min-height: 190px; display: grid; place-items: center; }
+    #qrcode img, #qrcode canvas { display: block; max-width: 100%; height: auto; }
+    .qr-fallback { max-width: 250px; padding: 20px; color: var(--muted); text-align: center; font-size: 13px; line-height: 1.6; }
+    .scan-caption { margin: 14px 0 0; color: var(--muted); text-align: center; font-size: 12px; }
+    .primary-button { width: 100%; min-height: 52px; margin-top: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 0; border-radius: 12px; background: var(--forest); color: white; text-decoration: none; cursor: pointer; font-size: 14px; font-weight: 750; transition: background .18s, transform .18s; }
+    .primary-button:hover { transform: translateY(-1px); background: #0b5147; }
+    .primary-button svg { width: 18px; height: 18px; }
+    .alternate-action { width: 100%; margin-top: 11px; padding: 10px; border: 0; background: transparent; color: var(--green); cursor: pointer; font-size: 12px; font-weight: 700; }
+    .alternate-action:hover { text-decoration: underline; }
+    .status { margin-top: 15px; padding: 12px 13px; border: 1px solid #ecd7aa; border-radius: 10px; background: #fff8e9; color: var(--warning); font-size: 12px; line-height: 1.55; }
+    .status[hidden], [hidden] { display: none !important; }
+    .steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+    .steps li { position: relative; min-height: 47px; padding: 0 0 18px 39px; color: #566a63; font-size: 13px; line-height: 1.55; counter-increment: step; }
+    .steps li::before { position: absolute; top: 0; left: 0; width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid #d9e3da; border-radius: 50%; background: #f6f8f3; color: var(--green); content: counter(step); font-size: 11px; font-weight: 700; }
+    .steps strong { color: var(--forest-dark); }
+    .payment-notice { margin-top: 19px; padding: 13px; border-radius: 10px; background: #f5f6f1; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .footer { padding: 17px 30px; border-top: 1px solid var(--line); color: #829089; text-align: center; font-size: 10px; letter-spacing: .08em; }
+    .toast { position: fixed; right: 20px; bottom: 20px; z-index: 3; max-width: min(360px, calc(100vw - 40px)); padding: 13px 17px; border-radius: 11px; background: var(--forest-dark); color: white; box-shadow: var(--shadow); font-size: 13px; }
 
-    .amount {
-      margin: 12px 0 5px;
-      color: var(--deep);
-      font-size: 42px;
-      font-weight: 700;
+    @media (max-width: 700px) {
+      body { padding: 14px; place-items: start center; }
+      .checkout { margin: auto 0; border-radius: 22px; }
+      .topbar { min-height: 72px; padding: 15px 20px; }
+      .logo { width: 38px; height: 38px; }
+      .brand-name { font-size: 16px; }
+      .secure-label { font-size: 0; }
+      .secure-label svg { width: 19px; height: 19px; }
+      .layout { grid-template-columns: 1fr; }
+      .summary { padding: 30px 24px 25px; }
+      h1 { margin-top: 12px; font-size: 35px; }
+      .amount-card { margin-top: 23px; padding: 18px 0; }
+      .amount { font-size: 42px; }
+      .recipient { margin-top: 19px; }
+      .trust-note { margin-top: 17px; }
+      .payment { padding: 27px 24px 30px; }
+      .payment-subheading { margin-bottom: 17px; }
+      .footer { padding: 15px 20px; }
     }
-
-    .sub {
-      color: #75817c;
-      font-size: 13px;
-    }
-
-    .details {
-      margin: 25px 0;
-      padding: 18px;
-      border: 1px solid #e6dcc9;
-      border-radius: 14px;
-      text-align: left;
-    }
-
-    .label {
-      margin-bottom: 5px;
-      color: #75817c;
-      font-size: 11px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .value {
-      color: var(--deep);
-      font-size: 15px;
-      font-weight: 600;
-      overflow-wrap: anywhere;
-    }
-
-    .pay-button {
-      display: block;
-      width: 100%;
-      padding: 17px;
-      border-radius: 12px;
-      background: var(--deep);
-      color: var(--cream);
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .pay-button:hover {
-      background: #0b4943;
-    }
-
-    .note {
-      margin: 15px 0 25px;
-      color: #75817c;
-      font-size: 11px;
-      line-height: 1.6;
-    }
-
-    .qr-box {
-      padding: 20px;
-      border: 1px solid #e6dcc9;
-      border-radius: 14px;
-      background: white;
-    }
-
-    #qrcode {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 12px;
-    }
-
-    .qr-text {
-      color: #75817c;
-      font-size: 12px;
-    }
-
-    .footer {
-      padding: 15px;
-      background: #f5ead8;
-      color: #75817c;
-      font-size: 10px;
-      letter-spacing: 2px;
-    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
   </style>
 </head>
-
 <body>
-  <main class="payment-card">
-    <header class="header">
-      <svg class="logo" viewBox="0 0 100 100"
-           xmlns="http://www.w3.org/2000/svg"
-           fill="none" stroke="#dca83d"
-           stroke-width="2.5" aria-hidden="true">
-        <path d="M50 78 C35 65 35 45 50 20 C65 45 65 65 50 78Z"/>
-        <path d="M50 78 C20 72 15 52 23 39 C39 46 48 59 50 78Z"/>
-        <path d="M50 78 C80 72 85 52 77 39 C61 46 52 59 50 78Z"/>
-        <path d="M22 80 Q50 91 78 80"/>
-        <path d="M32 86 Q50 93 68 86"/>
-      </svg>
-
-      <h1 class="brand">LIFORA</h1>
-      <div class="tagline">where health blossoms</div>
+  <main class="checkout" aria-labelledby="page-title">
+    <header class="topbar">
+      <div class="brand" aria-label="LIFORA — where health blossoms">
+        <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
+          <path d="M50 78C35 65 35 45 50 20c15 25 15 45 0 58Z" stroke="#fff4e4" stroke-width="5"/>
+          <path d="M50 78C20 72 15 52 23 39c16 7 25 20 27 39Zm0 0c30-6 35-26 27-39-16 7-25 20-27 39Z" stroke="#fff4e4" stroke-width="5"/>
+          <circle cx="50" cy="52" r="5" fill="#d7a747"/>
+          <path d="M22 82q28 11 56 0M33 89q17 7 34 0" stroke="#d7a747" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <div><p class="brand-name">LIFORA</p><div class="brand-tagline">where health blossoms</div></div>
+      </div>
+      <div class="secure-label" aria-label="UPI payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 19 6v5c0 4.5-2.9 7.7-7 10-4.1-2.3-7-5.5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg>UPI PAYMENT</div>
     </header>
 
-    <section class="content" aria-label="Payment details">
-      <div class="kicker">Payment request</div>
-      <div class="amount">₹17,741</div>
-      <div class="sub">One-time payment · INR</div>
+    <div class="layout">
+      <section class="summary" aria-labelledby="page-title">
+        <div class="eyebrow">LIFORA checkout</div>
+        <h1 id="page-title">A healthier you,<br>one step away.</h1>
+        <p class="intro">Review your payment details, then pay using any UPI app. Your app will ask you to approve the payment.</p>
 
-      <div class="details">
-        <div class="label">Pay to</div>
-        <div class="value">Lifora payment recipient</div>
+        <div class="amount-card">
+          <div class="amount-caption">Amount due</div>
+          <div class="amount">₹17,741 <small>INR</small></div>
+        </div>
 
-        <div class="label" style="margin-top: 12px;">UPI ID</div>
-        <div class="value">prakashbharathi0017@oksbi</div>
-      </div>
+        <div class="recipient">
+          <span class="field-label">Paying</span>
+          <div class="recipient-row">
+            <div>
+              <div class="recipient-name">Lifora payment recipient</div>
+              <div class="upi-id" id="upi-id">prakashbharathi0017@oksbi</div>
+            </div>
+            <button class="copy-button" id="copy-upi" type="button">Copy UPI ID</button>
+          </div>
+        </div>
 
-      <a
-        class="pay-button"
-        href="upi://pay?pa=prakashbharathi0017%40oksbi&amp;am=17741&amp;cu=INR&amp;tn=Lifora%20Payment">
-        PAY ₹17,741
-      </a>
+        <p class="trust-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Verify the recipient name and amount in your UPI app before approving. LIFORA will never ask for your UPI PIN or OTP.</span></p>
+      </section>
 
-      <p class="note">
-        Your UPI app will open where supported.
-        Check the recipient and amount before confirming.
-        Never share your UPI PIN or OTP.
-      </p>
+      <section class="payment" aria-labelledby="payment-heading">
+        <h2 class="payment-heading" id="payment-heading">Choose how to pay</h2>
+        <p class="payment-subheading">Use the UPI app on this device or scan the code from another device.</p>
 
-      <div class="qr-box">
-        <div id="qrcode" aria-label="QR code for the UPI payment"></div>
-        <div class="qr-text">Or scan with any compatible UPI app</div>
-      </div>
-    </section>
+        <div class="method-tabs" role="tablist" aria-label="UPI payment method">
+          <button class="method-tab" id="tab-scan" type="button" role="tab" aria-selected="true" aria-controls="panel-scan">Scan QR</button>
+          <button class="method-tab" id="tab-app" type="button" role="tab" aria-selected="false" aria-controls="panel-app" tabindex="-1">Open UPI app</button>
+        </div>
 
-    <footer class="footer">
-      LIFORA · PAYMENT PAGE
-    </footer>
+        <div class="method-panel" id="panel-scan" role="tabpanel" aria-labelledby="tab-scan">
+          <div class="qr-frame"><div id="qrcode" aria-label="QR code for the UPI payment"><div class="qr-fallback" id="qr-fallback">Preparing your UPI QR code…</div></div></div>
+          <p class="scan-caption">Scan with any compatible UPI app</p>
+          <button class="primary-button" id="open-app-from-qr" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>Open UPI app</button>
+        </div>
+
+        <div class="method-panel" id="panel-app" role="tabpanel" aria-labelledby="tab-app" hidden>
+          <ol class="steps">
+            <li><strong>Tap the button</strong> to open a UPI app installed on this device.</li>
+            <li><strong>Check the payment</strong> details shown by your UPI app.</li>
+            <li><strong>Approve in your app</strong> using your UPI PIN there only.</li>
+          </ol>
+          <button class="primary-button" id="open-app" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>Continue to UPI app · ₹17,741</button>
+          <div class="payment-notice">If no UPI app opens, copy the UPI ID and use the QR code instead. Availability depends on your device and browser.</div>
+        </div>
+
+        <div class="status" id="payment-status" role="status" aria-live="polite" hidden></div>
+        <button class="alternate-action" id="show-status" type="button">Already paid? Check payment status</button>
+        <div class="payment-notice">Payment status is not verified by this page. Keep your UPI app confirmation and contact LIFORA if you need help.</div>
+      </section>
+    </div>
+
+    <footer class="footer">LIFORA · SIMPLE, THOUGHTFUL HEALTHCARE</footer>
   </main>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <script>
-    const upiLink =
-      "upi://pay?pa=prakashbharathi0017%40oksbi&am=17741&cu=INR&tn=Lifora%20Payment";
+    (() => {
+      const upiId = "prakashbharathi0017@oksbi";
+      const upiUrl = "upi://pay?pa=prakashbharathi0017%40oksbi&am=17741&cu=INR&tn=Lifora%20Payment";
+      const tabs = [document.getElementById("tab-scan"), document.getElementById("tab-app")];
+      const panels = [document.getElementById("panel-scan"), document.getElementById("panel-app")];
+      const status = document.getElementById("payment-status");
+      const toast = document.getElementById("toast");
+      let toastTimer;
 
-    if (window.QRCode) {
-      new QRCode(document.getElementById("qrcode"), {
-        text: upiLink,
-        width: 190,
-        height: 190,
-        colorDark: "#062d2b",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
+      function showToast(message) {
+        toast.textContent = message;
+        toast.hidden = false;
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => { toast.hidden = true; }, 2600);
+      }
+
+      function selectTab(selectedIndex) {
+        tabs.forEach((tab, index) => {
+          const selected = index === selectedIndex;
+          tab.setAttribute("aria-selected", String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+          panels[index].hidden = !selected;
+        });
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => selectTab(index));
+        tab.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+            event.preventDefault();
+            const next = (index + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length;
+            selectTab(next);
+            tabs[next].focus();
+          }
+        });
       });
-    }
+
+      document.getElementById("copy-upi").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(upiId);
+          showToast("UPI ID copied.");
+        } catch {
+          const field = document.createElement("textarea");
+          field.value = upiId;
+          field.setAttribute("readonly", "");
+          field.style.position = "fixed";
+          field.style.opacity = "0";
+          document.body.appendChild(field);
+          field.select();
+          const copied = document.execCommand("copy");
+          field.remove();
+          showToast(copied ? "UPI ID copied." : "Copy this UPI ID: " + upiId);
+        }
+      });
+
+      function openUpiApp() {
+        status.hidden = false;
+        status.textContent = "Your UPI app should open if one is available. Complete payment in that app, then return here. This page cannot confirm whether a payment succeeded.";
+        window.location.href = upiUrl;
+      }
+      document.getElementById("open-app").addEventListener("click", openUpiApp);
+      document.getElementById("open-app-from-qr").addEventListener("click", openUpiApp);
+      document.getElementById("show-status").addEventListener("click", () => {
+        status.hidden = false;
+        status.textContent = "This static checkout cannot verify payment status. Check your UPI app or bank statement for confirmation. If the amount was debited but the payment is unclear, contact LIFORA with your UPI transaction reference. Do not share your UPI PIN or OTP.";
+        status.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+
+      function renderQr(attempt = 0) {
+        if (window.QRCode) {
+          const target = document.getElementById("qrcode");
+          target.replaceChildren();
+          try {
+            new QRCode(target, {
+              text: upiUrl,
+              width: 190,
+              height: 190,
+              colorDark: "#073b36",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.M
+            });
+          } catch {
+            target.innerHTML = '<div class="qr-fallback">QR code could not be created. Use the Open UPI app option or copy the UPI ID.</div>';
+          }
+          return;
+        }
+        if (attempt < 20) {
+          window.setTimeout(() => renderQr(attempt + 1), 150);
+        } else {
+          document.getElementById("qr-fallback").textContent = "QR code could not load. Use Open UPI app or copy the UPI ID instead.";
+        }
+      }
+      renderQr();
+    })();
   </script>
 </body>
 </html>
