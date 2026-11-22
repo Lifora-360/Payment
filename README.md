@@ -1,3 +1,5 @@
+> **Moved.** The payment portal is now part of Lifora Studio: [Lifora-360/studio](https://github.com/Lifora-360/studio) (`/payments/` for admin, `/pay/?id=…` for customers). This repo only redirects old links there.
+
 # LIFORA Payment Portal
 
 A responsive UPI payment-request manager using plain HTML/CSS/JavaScript and Supabase. The visual identity uses the supplied LIFORA emblem.

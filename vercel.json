@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/", "has": [{ "type": "query", "key": "pay", "value": "(?<id>[0-9a-fA-F-]{36})" }], "destination": "https://lifora-studio.vercel.app/pay/?id=:id", "permanent": false },
+    { "source": "/(.*)", "destination": "https://lifora-studio.vercel.app/payments/", "permanent": false }
+  ]
+}
